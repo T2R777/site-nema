@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PSEUDOPAD — Tapis de souris personnalisés</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0D0E14;
+    --bg-card: #15161F;
+    --bg-card-hover: #1C1E2B;
+    --line: #2A2C3C;
+    --text: #F0F0F5;
+    --text-dim: #8B8DA3;
+    --accent: #7C3AED;
+    --accent2: #00E5FF;
+    --accent-soft: rgba(124, 58, 237, 0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+
+  .display {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  /* ---------- NAV ---------- */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 6%;
+    background: rgba(13, 14, 20, 0.75);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .logo {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .logo span { color: var(--accent2); }
+
+  nav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.95rem;
+    margin-left: 32px;
+    transition: color 0.2s;
+  }
+  nav a:hover, nav a:focus-visible { color: var(--text); }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    padding: 80px 6% 60px;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    border: 1px solid rgba(0, 229, 255, 0.3);
+    padding: 6px 14px;
+    border-radius: 999px;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.6rem, 5vw, 4.4rem);
+    line-height: 1.05;
+    margin-bottom: 22px;
+  }
+  .hero h1 .grad {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hero p {
+    color: var(--text-dim);
+    font-size: 1.1rem;
+    max-width: 480px;
+    margin-bottom: 32px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.95rem;
+    padding: 16px 32px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: #08090F;
+  }
+  .btn-primary:hover, .btn-primary:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px var(--accent-soft);
+  }
+  .btn:focus-visible { outline: 2px solid var(--accent2); outline-offset: 3px; }
+
+  /* ---------- PREVIEW (signature element) ---------- */
+  .preview-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .mousepad {
+    width: 100%;
+    max-width: 460px;
+    aspect-ratio: 1536 / 1024;
+    border-radius: 18px;
+    background-image: url('assets/rocket-mousepad.jpg');
+    background-size: cover;
+    background-position: center;
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 30px 80px -30px rgba(199, 158, 64, 0.35);
+  }
+
+  /* masque la zone du pseudo d'origine */
+  .mousepad::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 26%;
+    background: linear-gradient(to top, rgba(8,8,10,0.92) 35%, rgba(8,8,10,0));
+  }
+
+  .mousepad-text {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: clamp(1.4rem, 5.5vw, 2.6rem);
+    letter-spacing: 0.06em;
+    color: #fff;
+    text-shadow: 0 0 14px rgba(255,255,255,0.5), 0 2px 6px rgba(0,0,0,0.8);
+    text-align: center;
+    padding: 0 24px;
+    word-break: break-word;
+    z-index: 2;
+    position: absolute;
+    bottom: 6%;
+    left: 0;
+    right: 0;
+    transition: text-shadow 0.3s;
+  }
+
+  .preview-controls {
+    width: 100%;
+    max-width: 460px;
+    display: flex;
+    gap: 10px;
+  }
+
+  .preview-controls input {
+    flex: 1;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    padding: 14px 16px;
+    border-radius: 8px;
+  }
+  .preview-controls input:focus-visible {
+    outline: 2px solid var(--accent2);
+    outline-offset: 2px;
+  }
+  .preview-controls input::placeholder { color: var(--text-dim); }
+
+  /* ---------- SECTIONS ---------- */
+  section {
+    padding: 90px 6%;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  .section-head {
+    margin-bottom: 50px;
+  }
+  .section-head .eyebrow {
+    color: var(--accent2);
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .section-head h2 {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+  }
+
+  /* product grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  }
+  .card:hover { background: var(--bg-card-hover); border-color: rgba(124,58,237,0.4); transform: translateY(-4px); }
+
+  .card-swatch {
+    width: 100%;
+    height: 140px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #fff;
+    font-size: 1.1rem;
+  }
+  .swatch-1 { background: linear-gradient(135deg, #1a1c2e, #2d1b4e); }
+  .swatch-2 { background: linear-gradient(135deg, #0a1f2e, #00485c); }
+  .swatch-3 { background: linear-gradient(135deg, #2e0a1f, #5c0048); }
+
+  .card h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .card p { color: var(--text-dim); font-size: 0.95rem; margin-bottom: 14px; }
+  .card .price {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--accent2);
+  }
+
+  /* steps */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .step {
+    border-left: 2px solid var(--line);
+    padding-left: 24px;
+    position: relative;
+  }
+  .step::before {
+    content: attr(data-n);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--bg);
+    background: var(--accent2);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: -16px;
+    top: -2px;
+  }
+  .step h3 { font-family: 'Rajdhani', sans-serif; font-weight: 700; text-transform: uppercase; margin: 20px 0 8px; }
+  .step p { color: var(--text-dim); font-size: 0.95rem; }
+
+  /* order form */
+  .order-section {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+    align-items: center;
+  }
+
+  .order-form label {
+    display: block;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    margin-top: 20px;
+  }
+  .order-form label:first-of-type { margin-top: 0; }
+
+  .order-form input, .order-form select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    padding: 14px 16px;
+    border-radius: 8px;
+  }
+  .order-form input:focus-visible, .order-form select:focus-visible {
+    outline: 2px solid var(--accent2);
+    outline-offset: 2px;
+  }
+
+  .order-form .btn { width: 100%; justify-content: center; margin-top: 28px; }
+
+  .order-summary h2 { margin-bottom: 16px; }
+  .order-summary p { color: var(--text-dim); margin-bottom: 20px; }
+  .order-summary ul { list-style: none; color: var(--text-dim); font-size: 0.95rem; }
+  .order-summary li { padding: 8px 0; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; }
+  .order-summary li:last-child { border-bottom: none; font-family: 'Rajdhani', sans-serif; font-weight: 700; color: var(--text); font-size: 1.1rem; }
+
+  /* footer */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 40px 6%;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+  }
+
+  /* confirmation toast */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--bg-card);
+    border: 1px solid var(--accent2);
+    color: var(--text);
+    padding: 16px 28px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s, transform 0.25s;
+    z-index: 200;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ---------- AUTH ---------- */
+  .auth-area { display: flex; align-items: center; gap: 14px; }
+
+  .btn-google {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff;
+    color: #1f1f1f;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.15s;
+  }
+  .btn-google:hover, .btn-google:focus-visible {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+    transform: translateY(-1px);
+  }
+
+  .user-chip {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+  }
+  .user-chip .avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    color: #08090F;
+    font-size: 0.9rem;
+  }
+  .user-chip.show { display: flex; }
+  .auth-area .btn-google.hide { display: none; }
+
+  /* modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 9, 15, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.show { opacity: 1; pointer-events: auto; }
+
+  .modal {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 40px;
+    width: 90%;
+    max-width: 360px;
+    text-align: center;
+    transform: translateY(10px);
+    transition: transform 0.2s;
+  }
+  .modal-overlay.show .modal { transform: translateY(0); }
+
+  .modal h3 { font-family: 'Rajdhani', sans-serif; font-weight: 700; text-transform: uppercase; font-size: 1.3rem; margin-bottom: 8px; }
+  .modal p { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 24px; }
+  .modal .btn-google { width: 100%; justify-content: center; }
+  .modal .modal-close {
+    margin-top: 16px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  /* ---------- PAYMENT ---------- */
+  .payment-block {
+    margin-top: 28px;
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+  }
+  .payment-block .pay-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+    display: block;
+  }
+  .pay-methods {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .pay-method {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--text-dim);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.9rem;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .pay-method.active { border-color: var(--accent2); color: var(--text); }
+  .pay-method:focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
+
+  .card-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .card-fields .full { grid-column: 1 / -1; }
+  .card-fields input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.95rem;
+    padding: 12px 14px;
+    border-radius: 8px;
+  }
+  .card-fields input:focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
+
+  .pay-other {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    padding: 20px 0;
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 1100px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding-top: 50px; }
+    .grid, .steps { grid-template-columns: 1fr; }
+    .order-section { grid-template-columns: 1fr; padding: 36px; }
+    nav a { margin-left: 18px; font-size: 0.85rem; }
+    nav { flex-wrap: wrap; gap: 12px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">PSEUDO<span>PAD</span></div>
+  <div style="display:flex; align-items:center; gap: 28px;">
+    <div>
+      <a href="#produits">Produits</a>
+      <a href="#commande">Commander</a>
+    </div>
+    <div class="auth-area">
+      <span class="user-chip show" id="userChip">
+        <span class="avatar" id="userAvatar">?</span>
+        <span id="userName">—</span>
+      </span>
+      <button class="btn-google" id="logoutBtn">Se déconnecter</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div>
+    <span class="hero-tag">100% personnalisable</span>
+    <h1>Ton pseudo.<br>Ton <span class="grad">setup</span>.<br>Ton tapis.</h1>
+    <p>Tape ton pseudo, choisis ta couleur, et regarde ton tapis de souris prendre vie en direct. Imprimé à la demande, livré chez toi.</p>
+    <a href="#commande" class="btn btn-primary">Créer mon tapis →</a>
+  </div>
+
+  <div class="preview-wrap">
+    <div class="mousepad" id="mousepad">
+      <div class="mousepad-text" id="previewText">LOROMYLA</div>
+    </div>
+    <div class="preview-controls">
+      <input type="text" id="liveInput" placeholder="Tape ton pseudo ici..." maxlength="16" aria-label="Pseudo pour l'aperçu" value="LOROMYLA">
+    </div>
+  </div>
+</header>
+
+<!-- PRODUITS -->
+<section id="produits">
+  <div class="section-head">
+    <span class="eyebrow">Modèles</span>
+    <h2>Choisis ton style</h2>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-swatch swatch-1">Galaxy</div>
+      <h3>Tapis Standard</h3>
+      <p>30 x 25 cm — base antidérapante, surface tissée fine.</p>
+      <div class="price">14,90 €</div>
+    </div>
+    <div class="card">
+      <div class="card-swatch swatch-2">Cyber Wave</div>
+      <h3>Tapis XL Gamer</h3>
+      <p>80 x 30 cm — couvre clavier et souris, idéal setup gaming.</p>
+      <div class="price">24,90 €</div>
+    </div>
+    <div class="card">
+      <div class="card-swatch swatch-3">Neon Pulse</div>
+      <h3>Tapis avec LED</h3>
+      <p>35 x 30 cm — bords lumineux RGB, port USB inclus.</p>
+      <div class="price">34,90 €</div>
+    </div>
+    <div class="card">
+      <div class="card-swatch" style="background-image: url('assets/rocket-mousepad.jpg'); background-size: cover; background-position: center;"></div>
+      <h3>Tapis Rocket Edition</h3>
+      <p>40 x 30 cm — design circuit & voiture, finitions or, ton pseudo intégré.</p>
+      <div class="price">27,90 €</div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMENT ÇA MARCHE -->
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Processus</span>
+    <h2>Comment ça marche</h2>
+  </div>
+  <div class="steps">
+    <div class="step" data-n="1">
+      <h3>Personnalise</h3>
+      <p>Écris ton pseudo et choisis la couleur de néon dans l'aperçu en direct.</p>
+    </div>
+    <div class="step" data-n="2">
+      <h3>Commande</h3>
+      <p>Sélectionne ton modèle et ta taille, puis valide ta commande.</p>
+    </div>
+    <div class="step" data-n="3">
+      <h3>Reçois</h3>
+      <p>Ton tapis est imprimé et expédié sous 3 à 5 jours ouvrés.</p>
+    </div>
+  </div>
+</section>
+
+<!-- COMMANDE -->
+<section id="commande">
+  <div class="order-section">
+    <div class="order-form">
+      <h2 class="display" style="font-size:1.6rem; margin-bottom: 6px;">Configure ton tapis</h2>
+      <p style="color: var(--text-dim); font-size: 0.95rem;">Le pseudo apparaît tel que tu l'écris ici, en majuscules, sur le tapis.</p>
+
+      <label for="pseudo">Pseudo</label>
+      <input type="text" id="pseudo" placeholder="Ex : LOROMYLA" maxlength="16" value="LOROMYLA">
+
+      <label for="modele">Modèle</label>
+      <select id="modele">
+        <option value="14.90">Tapis Standard — 14,90 €</option>
+        <option value="24.90">Tapis XL Gamer — 24,90 €</option>
+        <option value="34.90">Tapis avec LED — 34,90 €</option>
+        <option value="27.90" selected>Tapis Rocket Edition — 27,90 €</option>
+      </select>
+
+      <label for="couleur">Couleur</label>
+      <select id="couleur" disabled>
+        <option value="noir">Noir</option>
+      </select>
+
+      <div class="payment-block">
+        <span class="pay-label">Moyen de paiement</span>
+        <div class="pay-methods" role="group" aria-label="Choisir un moyen de paiement">
+          <button type="button" class="pay-method active" data-method="card">Carte bancaire</button>
+          <button type="button" class="pay-method" data-method="paypal">PayPal</button>
+        </div>
+
+        <div class="card-fields" id="cardFields">
+          <input type="text" placeholder="Numéro de carte" class="full" inputmode="numeric" maxlength="19" aria-label="Numéro de carte">
+          <input type="text" placeholder="MM / AA" inputmode="numeric" maxlength="7" aria-label="Date d'expiration">
+          <input type="text" placeholder="CVC" inputmode="numeric" maxlength="4" aria-label="Code CVC">
+          <input type="text" placeholder="Nom sur la carte" class="full" aria-label="Nom sur la carte">
+        </div>
+        <div class="pay-other" id="paypalFields" style="display:none;">
+          Tu seras redirigé vers PayPal pour finaliser le paiement.
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="orderBtn">Valider ma commande</button>
+    </div>
+
+    <div class="order-summary">
+      <h2 class="display" style="font-size:1.6rem;">Récapitulatif</h2>
+      <p>Vérifie ta personnalisation avant de valider.</p>
+      <ul>
+        <li><span>Pseudo</span> <span id="sumPseudo">—</span></li>
+        <li><span>Modèle</span> <span id="sumModele">Tapis Standard</span></li>
+        <li><span>Couleur</span> <span id="sumCouleur">Cyan</span></li>
+        <li><span>Total</span> <span id="sumTotal">14,90 €</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  © 2026 PseudoPad — Tapis de souris personnalisés. Fait avec passion pour les gamers.
+</footer>
+
+<div class="toast" id="toast">Paiement validé ! Ta commande personnalisée arrive bientôt.</div>
+
+<script>
+  const previewText = document.getElementById('previewText');
+  const mousepad = document.getElementById('mousepad');
+  const liveInput = document.getElementById('liveInput');
+
+  const pseudoField = document.getElementById('pseudo');
+  const modeleField = document.getElementById('modele');
+
+  const sumPseudo = document.getElementById('sumPseudo');
+  const sumModele = document.getElementById('sumModele');
+  const sumCouleur = document.getElementById('sumCouleur');
+  const sumTotal = document.getElementById('sumTotal');
+
+  const orderBtn = document.getElementById('orderBtn');
+  const toast = document.getElementById('toast');
+
+  function updatePreview() {
+    const val = liveInput.value.trim().toUpperCase() || 'LOROMYLA';
+    previewText.textContent = val;
+  }
+
+  liveInput.addEventListener('input', () => {
+    updatePreview();
+    pseudoField.value = liveInput.value;
+    updateSummary();
+  });
+
+  const modeleNames = {
+    '14.90': 'Tapis Standard',
+    '24.90': 'Tapis XL Gamer',
+    '34.90': 'Tapis avec LED',
+    '27.90': 'Tapis Rocket Edition'
+  };
+
+  function updateSummary() {
+    const pseudoVal = pseudoField.value.trim().toUpperCase();
+    sumPseudo.textContent = pseudoVal || '—';
+    sumModele.textContent = modeleNames[modeleField.value];
+    sumCouleur.textContent = 'Noir';
+    sumTotal.textContent = parseFloat(modeleField.value).toFixed(2).replace('.', ',') + ' €';
+  }
+
+  pseudoField.addEventListener('input', () => {
+    liveInput.value = pseudoField.value;
+    updatePreview();
+    updateSummary();
+  });
+
+  modeleField.addEventListener('change', updateSummary);
+
+  orderBtn.addEventListener('click', () => {
+    if (!isLoggedIn) {
+      openModal();
+      return;
+    }
+    if (!pseudoField.value.trim()) {
+      pseudoField.focus();
+      pseudoField.style.outline = '2px solid #FF2E63';
+      setTimeout(() => pseudoField.style.outline = '', 1200);
+      return;
+    }
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  });
+
+  /* ---------- AUTH (connexion Google simulée) ---------- */
+  const googleLoginBtn = document.getElementById('googleLoginBtn');
+  const modalGoogleBtn = document.getElementById('modalGoogleBtn');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+  const loginModal = document.getElementById('loginModal');
+  const userChip = document.getElementById('userChip');
+  const userAvatar = document.getElementById('userAvatar');
+  const userName = document.getElementById('userName');
+
+  let isLoggedIn = false;
+
+  function openModal() {
+    loginModal.classList.add('show');
+  }
+  function closeModal() {
+    loginModal.classList.remove('show');
+  }
+
+  function simulateGoogleLogin() {
+    // NOTE : ceci simule une connexion. Une vraie connexion Google nécessite
+    // un backend OAuth (Google Identity Services) pour être fonctionnelle.
+    isLoggedIn = true;
+    googleLoginBtn.classList.add('hide');
+    userChip.classList.add('show');
+    userAvatar.textContent = 'G';
+    userName.textContent = 'Compte Google connecté';
+    closeModal();
+  }
+
+  googleLoginBtn.addEventListener('click', simulateGoogleLogin);
+  modalGoogleBtn.addEventListener('click', simulateGoogleLogin);
+  modalCloseBtn.addEventListener('click', closeModal);
+  loginModal.addEventListener('click', (e) => {
+    if (e.target === loginModal) closeModal();
+  });
+
+  /* ---------- PAYMENT METHOD TOGGLE ---------- */
+  const payMethods = document.querySelectorAll('.pay-method');
+  const cardFields = document.getElementById('cardFields');
+  const paypalFields = document.getElementById('paypalFields');
+
+  payMethods.forEach(btn => {
+    btn.addEventListener('click', () => {
+      payMethods.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (btn.dataset.method === 'card') {
+        cardFields.style.display = 'grid';
+        paypalFields.style.display = 'none';
+      } else {
+        cardFields.style.display = 'none';
+        paypalFields.style.display = 'block';
+      }
+    });
+  });
+
+  updatePreview();
+  updateSummary();
+</script>
+
+</body>
+</html>
